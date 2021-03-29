@@ -1,6 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-02-14
-*/
 
 // File: @openzeppelin/contracts/math/SafeMath.sol
 

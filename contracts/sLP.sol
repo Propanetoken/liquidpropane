@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2021-02-15
-*/
-
 pragma solidity ^0.5.0;
 
 // ----------------------------------------------------------------------------
@@ -34,7 +30,7 @@ contract SafeMath {
 }
 
 
-contract OldTestSLP is ERC20Interface, SafeMath {
+contract SLP is ERC20Interface, SafeMath {
     string public name;
     string public symbol;
     uint8 public decimals; // 18 decimals is the strongly suggested default, avoid changing it
@@ -50,7 +46,7 @@ contract OldTestSLP is ERC20Interface, SafeMath {
      * Initializes contract with initial supply tokens to the creator of the contract
      */
     constructor() public {
-        name = "Synthetic LP Test";
+        name = "Synthetic LP";
         symbol = "SLP";
         decimals = 18;
         _totalSupply = 34642000000000000000000;
