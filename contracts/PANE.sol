@@ -1,3 +1,10 @@
+// Liquid Propane
+// www: liquidpropane.io
+// tg: https://t.me/liquidpropane
+// twitter: https://twitter.com/PropaneToken
+
+
+
 // Dependency file: @openzeppelin/contracts/GSN/Context.sol
 
 // SPDX-License-Identifier: MIT
@@ -27,8 +34,6 @@ abstract contract Context {
 
 
 // Dependency file: @openzeppelin/contracts/access/Ownable.sol
-
-
 
 // pragma solidity ^0.6.0;
 
