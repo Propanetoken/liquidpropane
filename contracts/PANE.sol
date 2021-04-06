@@ -9,8 +9,6 @@
 
 // SPDX-License-Identifier: MIT
 
-//pragma solidity ^0.6.0;
-
 /*
  * @dev Provides information about the current execution context, including the
  * sender of the transaction and its data. While these are generally available
@@ -35,9 +33,6 @@ abstract contract Context {
 
 // Dependency file: @openzeppelin/contracts/access/Ownable.sol
 
-// pragma solidity ^0.6.0;
-
-// import "@openzeppelin/contracts/GSN/Context.sol";
 /**
  * @dev Contract module which provides a basic access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
@@ -104,10 +99,6 @@ contract Ownable is Context {
 
 
 // Dependency file: @openzeppelin/contracts/math/SafeMath.sol
-
-
-
-// pragma solidity ^0.6.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -268,10 +259,6 @@ library SafeMath {
 
 // Dependency file: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
-
-
-// pragma solidity ^0.6.0;
-
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
@@ -349,9 +336,6 @@ interface IERC20 {
 
 // Dependency file: @openzeppelin/contracts/utils/Address.sol
 
-
-
-// pragma solidity ^0.6.2;
 
 /**
  * @dev Collection of functions related to the address type
@@ -494,14 +478,6 @@ library Address {
 
 // Dependency file: @openzeppelin/contracts/token/ERC20/ERC20.sol
 
-
-
-// pragma solidity ^0.6.0;
-
-// import "@openzeppelin/contracts/GSN/Context.sol";
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// import "@openzeppelin/contracts/math/SafeMath.sol";
-// import "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -805,8 +781,6 @@ contract ERC20 is Context, IERC20 {
 
 // Dependency file: @uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol
 
-// pragma solidity >=0.5.0;
-
 interface IUniswapV2Factory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
@@ -825,8 +799,6 @@ interface IUniswapV2Factory {
 
 
 // Dependency file: @uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol
-
-// pragma solidity >=0.5.0;
 
 interface IUniswapV2ERC20 {
     event Approval(address indexed owner, address indexed spender, uint value);
@@ -852,8 +824,6 @@ interface IUniswapV2ERC20 {
 
 
 // Dependency file: @uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol
-
-// pragma solidity >=0.6.2;
 
 interface IUniswapV2Router01 {
     function factory() external pure returns (address);
@@ -952,8 +922,6 @@ interface IUniswapV2Router01 {
 
 // Dependency file: @uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol
 
-// pragma solidity >=0.6.2;
-
 interface IUniswapV2Router02 is IUniswapV2Router01 {
     function removeLiquidityETHSupportingFeeOnTransferTokens(
         address token,
@@ -1000,13 +968,6 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 
 pragma solidity 0.6.12;
 
-// import "@openzeppelin/contracts/access/Ownable.sol";
-// import "@openzeppelin/contracts/math/SafeMath.sol";
-// import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
-// import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
-// import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-
 contract PANE is ERC20, Ownable {
 
     using SafeMath for uint256;
@@ -1021,6 +982,8 @@ contract PANE is ERC20, Ownable {
 
     bool inSwapAndLiquify;
     bool swapAndLiquifyEnabled;
+    
+    mapping (address => bool) public isWhitelisted;
 
     event FeeUpdated(uint8 feeDecimals, uint32 feePercentage);
     event MinTokensBeforeSwapUpdated(uint128 minTokensBeforeSwap);
@@ -1048,6 +1011,7 @@ contract PANE is ERC20, Ownable {
         // mint tokens which will initially belong to deployer
         // deployer should go seed the pair with some initial liquidity
         _mint(msg.sender, 20000 * 10**18);
+        whitelistAdd(msg.sender);
 
         // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
@@ -1095,8 +1059,10 @@ contract PANE is ERC20, Ownable {
         
         // 1% treasury tax
         uint256 treasuryVal = amount.div(100);
-
-        if(from != address(owner())) {
+        
+        if(isWhitelisted[from] == true) {
+            super._transfer(from, to, amount);
+        } else {
             // take the fee and send those tokens to this contract address
             // and then send the remainder of tokens to original recipient
             uint256 tokensToTransfer = amount.sub(tokensToLock).sub(treasuryVal);
@@ -1104,8 +1070,6 @@ contract PANE is ERC20, Ownable {
             super._transfer(from, address(this), tokensToLock);
             super._transfer(from, to, tokensToTransfer);
             super._transfer(from, treasuryWallet, treasuryVal);
-        } else {
-            super._transfer(from, to, amount);
         }
     }
 
@@ -1220,5 +1184,13 @@ contract PANE is ERC20, Ownable {
         onlyOwner
     {
         _to.transfer(_amount);
+    }
+    
+    function whitelistAdd(address account) public onlyOwner {
+        isWhitelisted[account] = true;
+    }
+    
+    function whitelistRemove(address account) public onlyOwner {
+        isWhitelisted[account] = false;
     }
 }
